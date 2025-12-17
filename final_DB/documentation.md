@@ -171,7 +171,7 @@ FK = FOREIGN KEY
 - Естественные
 - Прочие
 
-**Реальные предметы в БД:**
+**Предметы в БД:**
 
 | subject_id | subject_name | category | credits | description |
 |---|---|---|---|---|
@@ -204,7 +204,7 @@ FK = FOREIGN KEY
 - Комбинация (student_id, subject_id, academic_year, semester)
 - **Смысл:** Студент не может быть записан дважды на один и тот же предмет в одном семестре одного учебного года
 
-**Примеры записей (реальные данные):**
+**Примеры записей:**
 
 | enrollment_id | student_id | subject_id | academic_year | semester | enrolled_date |
 |---|---|---|---|---|---|
@@ -287,7 +287,7 @@ FK = FOREIGN KEY
 - Комбинация (teacher_id, subject_id, academic_year, semester)
 - **Смысл:** Преподаватель не может быть назначен дважды на один и тот же предмет в одном семестре одного учебного года
 
-**Примеры назначений (реальные данные):**
+**Примеры назначений:**
 
 | assignment_id | teacher_id | subject_id | academic_year | semester | assigned_date |
 |---|---|---|---|---|---|
