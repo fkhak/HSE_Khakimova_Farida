@@ -1,4 +1,4 @@
-# 📚 Документация базы данных University_DB (ОБНОВЛЕНА)
+# 📚 Документация базы данных
 
 ## Содержание
 1. [Общая информация](#общая-информация)
@@ -24,8 +24,8 @@
 - **Записи (Enrollments)** — 20 записей студентов на предметы
 - **Оценки (Grades)** — 25 оценок студентов
 - **Назначения преподавателей** — 12 распределений преподавателей на предметы
-
----
+_(количественные данные на конец выполнения задания: что-то добавлялось, что-то удалялось по ходу исполнения запросов)
+_---
 
 ## Диаграмма ER
 
@@ -111,7 +111,7 @@ FK = FOREIGN KEY
 | `phone` | VARCHAR(20) | Номер телефона | NOT NULL |
 | `group_number` | VARCHAR(20) | Номер учебной группы | OPTIONAL |
 
-**Реальные студенты в БД:**
+**Студенты в БД:**
 
 | student_id | full_name | birth_date | email | group_number |
 |---|---|---|---|---|
@@ -138,7 +138,7 @@ FK = FOREIGN KEY
 | `phone` | VARCHAR(20) | Номер телефона | NOT NULL |
 | `department` | VARCHAR(100) | Кафедра/Отделение | NOT NULL |
 
-**Реальные преподаватели в БД:**
+**Преподаватели в БД:**
 
 | teacher_id | full_name | department | email |
 |---|---|---|---|
@@ -244,7 +244,7 @@ FK = FOREIGN KEY
 | 2 | Неудовлетворительно |
 | 1 | Не сдано |
 
-**Примеры оценок (реальные данные):**
+**Примеры оценок:**
 
 | grade_id | student_id | subject_id | teacher_id | grade | academic_year | semester | grade_date |
 |---|---|---|---|---|---|---|---|
@@ -562,7 +562,7 @@ WHERE t.teacher_id = ?;
    ```sql
    CHECK (category in ('Математические','Гуманитарные','Естественные','Прочие'))
    ```
-   Только 4 допустимые категории (в реальных данных используются: Математические, Гуманитарные)
+   Только 4 допустимые категории (в имеющихся данных используются: Математические, Гуманитарные)
 
 3. **Диапазон оценок:**
    ```sql
@@ -577,86 +577,3 @@ WHERE t.teacher_id = ?;
    Только 1 или 2 семестр
 
 ---
-
-## Типичные SQL запросы
-
-### 1. Получить все предметы студента в семестре
-```sql
-SELECT DISTINCT s.subject_name, s.category, s.credits
-FROM students st
-JOIN enrollments e ON st.student_id = e.student_id
-JOIN subjects s ON e.subject_id = s.subject_id
-WHERE st.student_id = 1 AND e.semester = 1;
-```
-
-### 2. Получить все оценки студента
-```sql
-SELECT g.grade_date, s.subject_name, g.grade, t.full_name as teacher
-FROM grades g
-JOIN students st ON g.student_id = st.student_id
-JOIN subjects s ON g.subject_id = s.subject_id
-JOIN teachers t ON g.teacher_id = t.teacher_id
-WHERE st.student_id = 1
-ORDER BY g.grade_date DESC;
-```
-
-### 3. Получить среднюю оценку студента
-```sql
-SELECT st.full_name, AVG(g.grade) as average_grade, COUNT(g.grade_id) as total_grades
-FROM students st
-LEFT JOIN grades g ON st.student_id = g.student_id
-WHERE st.student_id = 1
-GROUP BY st.student_id;
-```
-
-### 4. Получить всех преподавателей, ведущих конкретный предмет
-```sql
-SELECT DISTINCT t.full_name, t.department
-FROM teachers t
-JOIN teaching_assignments ta ON t.teacher_id = ta.teacher_id
-JOIN subjects s ON ta.subject_id = s.subject_id
-WHERE s.subject_id = 1 AND ta.academic_year = '2024-2025';
-```
-
-### 5. Получить студентов, не получивших ни одной оценки
-```sql
-SELECT st.full_name, st.group_number
-FROM students st
-WHERE st.student_id NOT IN (SELECT DISTINCT student_id FROM grades);
-```
-
-### 6. Получить самые высокие оценки по каждому предмету
-```sql
-SELECT s.subject_name, MAX(g.grade) as highest_grade, 
-       (SELECT st.full_name FROM students st JOIN grades g2 ON st.student_id = g2.student_id 
-        WHERE g2.subject_id = s.subject_id AND g2.grade = MAX(g.grade) LIMIT 1) as top_student
-FROM subjects s
-LEFT JOIN grades g ON s.subject_id = g.subject_id
-GROUP BY s.subject_id;
-```
-
----
-
-## Примечания по проектированию
-
-✅ **Достоинства структуры:**
-- Полная нормализация (3НФ)
-- Правильная разработка сущностей и связей
-- Комплексные механизмы целостности данных
-- Оптимальные индексы для быстрого поиска
-- Поддержка Cyrillic (русский язык) через UTF8MB4
-- Учет временного фактора (academic_year, semester)
-- Отслеживание, кто выставил оценку (teacher_id в GRADES)
-
-✅ **Возможности расширения:**
-- Можно добавить таблицу ACADEMIC_PERIODS для управления годами
-- Можно добавить таблицу ATTENDANCE для отслеживания посещений
-- Можно добавить таблицу EXAM_SCHEDULES для расписания экзаменов
-- Можно добавить таблицу PREREQUISITES для предварительных требований
-
----
-
-**Документация составлена:** 17 декабря 2025  
-**Версия БД:** 1.0 (с реальными данными)  
-**Язык БД:** MySQL 8.0.43  
-**Статус:** ✅ Документация актуальна и соответствует реальным данным в базе
